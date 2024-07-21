@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quotation Form</title>
+    <style>
+        /* Add your styles here */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        .form-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+        .form-group button {
+            padding: 10px 15px;
+            background-color: #007bff;
+            border: none;
+            color: white;
+            cursor: pointer;
+        }
+    </style>
+
+    <script>
+        function calculateTotals() {
+            const quantity = parseFloat(document.getElementById('quantity').value) || 0;
+            const unitPrice = parseFloat(document.getElementById('unit_price').value) || 0;
+
+            const amount = quantity * unitPrice;
+            const sgst = amount * 0.09;
+            const cgst = amount * 0.09;
+            const total = amount + sgst + cgst;
+
+            document.getElementById('amount').value = amount.toFixed(2);
+            document.getElementById('sgst').value = sgst.toFixed(2);
+            document.getElementById('cgst').value = cgst.toFixed(2);
+            document.getElementById('total').value = total.toFixed(2);
+        }
+
+        function validateForm() {
+            const date = document.getElementById('date').value;
+            const quantity = document.getElementById('quantity').value;
+            const unitPrice = document.getElementById('unit_price').value;
+
+            if (!date || !quantity || !unitPrice) {
+                alert('Please fill out all fields.');
+                return false;
+            }
+            return true;
+        }
+    </script>
+    
+</head>
+<body>
+    <div class="form-container">
+        <h2 style="text-align: center;">Quotation Form</h2>
+        <form action="{% url 'generate_quotation' %}" method="post" onsubmit="return validateForm()">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label for="company_name_ship">Ship To - Company Name:</label>
+                <input type="text" id="company_name_ship" name="company_name_ship" required>
+            </div>
+            <div class="form-group">
+                <label for="company_address_ship">Ship To - Company Address:</label>
+                <textarea id="company_address_ship" name="company_address_ship" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="gstin_ship">Ship To - GSTIN:</label>
+                <input type="text" id="gstin_ship" name="gstin_ship" required>
+            </div>
+            <div class="form-group">
+                <label for="state_ship">Ship To - State:</label>
+                <input type="text" id="state_ship" name="state_ship" required>
+            </div>
+            <div class="form-group">
+                <label for="company_name_bill">Bill To - Company Name:</label>
+                <input type="text" id="company_name_bill" name="company_name_bill" required>
+            </div>
+            <div class="form-group">
+                <label for="company_address_bill">Bill To - Company Address:</label>
+                <textarea id="company_address_bill" name="company_address_bill" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="gstin_bill">Bill To - GSTIN:</label>
+                <input type="text" id="gstin_bill" name="gstin_bill" required>
+            </div>
+            <div class="form-group">
+                <label for="state_bill">Bill To - State:</label>
+                <input type="text" id="state_bill" name="state_bill" required>
+            </div>
+            <div class="form-group">
+                <label for="voucher_no">Voucher No:</label>
+                <input type="text" id="voucher_no" name="voucher_no" required>
+            </div>
+            <div class="form-group">
+                <label for="date">Date:</label>
+                <input type="date" id="date" name="date" required>
+            </div>
+            <div class="form-group">
+                <label for="order_no">Buyer's Ref./Order No.:</label>
+                <input type="text" id="order_no" name="order_no" required>
+            </div>
+            <div class="form-group">
+                <label for="description">Description of Goods:</label>
+                <textarea id="description" name="description" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="hsn">HSN/SAC:</label>
+                <input type="text" id="hsn" name="hsn" required>
+            </div>
+            <div class="form-group">
+                <label for="gst_rate">GST Rate:</label>
+                <input type="text" id="gst_rate" name="gst_rate" required>
+            </div>
+            <div class="form-group">
+                <label for="quantity">Quantity:</label>
+                <input type="number" id="quantity" name="quantity" required>
+            </div>
+            <div class="form-group">
+                <label for="unit_price">Unit Price:</label>
+                <input type="text" id="unit_price" name="unit_price" required>
+            </div>
+            <div class="form-group">
+                <button type="submit">Generate Quotation</button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

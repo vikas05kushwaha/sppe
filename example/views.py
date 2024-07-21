@@ -1,16 +1,21 @@
 # example/views.py
 from datetime import datetime
+from django.shortcuts import render
 
-from django.http import HttpResponse
+
 
 def index(request):
-    now = datetime.now()
-    html = f'''
-    <html>
-        <body>
-            <h1>Hello from Vercel!</h1>
-            <p>The current time is { now }.</p>
-        </body>
-    </html>
-    '''
-    return HttpResponse(html)
+    return render(request, 'quotationform.html')
+
+
+
+def generate_quotation(request):
+    if request.method == 'POST':
+        data = request.POST.dict()
+        data['date'] = datetime.strptime(data['date'], '%Y-%m-%d').strftime('%d-%b-%y')
+        data['amount'] = float(data['quantity']) * float(data['unit_price'])
+        data['sgst'] = data['amount'] * 0.09
+        data['cgst'] = data['amount'] * 0.09
+        data['total'] = round(data['amount'] + data['sgst'] + data['cgst'],2)
+        return render(request, 'quotation.html', {'data': data})
+    return render(request, 'form.html')

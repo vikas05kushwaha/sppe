@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quotation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        .quotation-container {
+            max-width: 800px;
+            margin: 0 auto;
+            border: 1px solid #000;
+            padding: 20px;
+            background-color: #fff;
+        }
+        .header, .footer {
+            text-align: center;
+        }
+        .header img {
+            width: 100px;
+        }
+        .details, .details div {
+            margin: 5px 0;
+            align-content: flex-end;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        .total {
+            text-align: right;
+            font-weight: bold;
+        }
+        .signature {
+            text-align: right;
+            margin-top: 30px;
+        }
+        .print-button {
+            display: block;
+            width: 150px;
+            margin: 20px auto;
+            padding: 10px 20px;
+            text-align: center;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+    </style>
+    <script>
+        function printPageArea(areaID){
+            var printContent = document.getElementById(areaID).innerHTML;
+            var originalContent = document.body.innerHTML;
+            document.body.innerHTML = printContent;
+            window.print();
+            document.body.innerHTML = originalContent;
+        }
+    </script>
+</head>
+<body>
+    <div id="printAreaData" class="quotation-container">
+        <h2 style="text-align: center;">QUOTATION</h2>
+        <table>
+            <tbody>
+                <tr>
+                    <th style="width: 60%;" rowspan="2">
+                        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                            <img src="https://trovenapp.s3.amazonaws.com/sppowerLogo.png" alt="Company Logo" height="80px" width="80px">
+                            <span style="margin-left: 20px;">
+                                <p style="margin: 0;">S.P POWER ENGINEERING</p>
+                                <p style="font-size: small;margin: 0;">TOP FLOOR, F3-292T STREET, NEW DELHI EXTN,
+                                    S.A.R. - 110019, Delhi, India
+                                    Email: sppowerengineering@gmail.com</p>
+                            </span>
+                        </div>
+                    </th>
+                    <td style="width: 20%;" colspan="1">
+                        <div><strong>Voucher No:</strong> {{ data.voucher_no }}</div>
+                    </td>
+                    <td style="width: 20%;" colspan="1">
+                        <div><strong>Dateed:</strong> {{ data.date }}</div>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="width: 20%;" colspan="1">
+                        <div><strong>Buyer's Ref/Order No:</strong> {{ data.order_no }}</div>
+                    </td>
+                    <td style="width: 20%;" colspan="1">
+                        <div><strong>Other's References</strong></div>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="width: 41%;">
+                        <div><strong>Buyer (Bill To):</strong></div>
+                        <div>{{ data.company_name_bill }}</div>
+                        <div>{{ data.company_address_bill }}</div>
+                        <div><strong>GSTIN/UIN:</strong> {{ data.gstin_bill }}</div>
+                        <div><strong>State Name:</strong> {{ data.state_bill }}</div>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="width: 41%;">
+                        <div><strong>Consignee (Ship To):</strong></div>
+                        <div>{{ data.company_name_ship }}</div>
+                        <div>{{ data.company_address_ship }}</div>
+                        <div><strong>GSTIN/UIN:</strong> {{ data.gstin_ship }}</div>
+                        <div><strong>State Name:</strong> {{ data.state_ship }}</div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table>
+            <thead>
+                <tr>
+                    <th>S.No</th>
+                    <th>Description of Goods</th>
+                    <th>HSN/SAC</th>
+                    <th>GST Rate</th>
+                    <th>Due on</th>
+                    <th>Quantity</th>
+                    <th>Unit Price</th>
+                    <th>Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td>{{ data.description }}</td>
+                    <td>{{ data.hsn }}</td>
+                    <td>{{ data.gst_rate }} %</td>
+                    <td>{{ data.date }}</td>
+                    <td>{{ data.quantity }}</td>
+                    <td>{{ data.unit_price }}</td>
+                    <td>{{ data.amount }}</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td class="total">SGST</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>{{ data.sgst }}</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td class="total">CGST</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>{{ data.cgst }}</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td class="total">Total</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>{{ data.total }}</td>
+                </tr>
+            </tbody>
+        </table>
+        <table>
+            <tbody>
+                <tr>
+                    <td>
+                        <div><strong>Amount Chargeable (in words):</strong></div>
+                    </td>
+                    <td>
+                        <div>INR Twelve Thousand Seven Hundred Sixty Eight Only</div>
+                    </td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>
+                        <div><strong>Company's Bank Details:</strong></div>
+                        <div>Company's PAN: <strong>ASEPK8354M</strong></div>
+                        <div>Account Holder's Name: <strong>S.P POWER ENGINEERING</strong></div>
+                        <div>Bank Name: <strong>KOTAK MAHINDRA BANK</strong></div>
+                        <div>Account No: <strong>511297962</strong></div>
+                        <div>Branch & IFSC Code: <strong>New Delhi - Okhla & KKBK0000265</strong></div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <div><strong>Declaration:</strong></div>
+                        <div>We declare that this invoice shows the actual price of the goods described and that all particulars are true and correct.</div>
+                    </td>
+                    <td style="display: flex; justify-content: flex-end; align-items: flex-end; height: 100px; border: none;">
+                        <span style="text-align: right;">
+                            <p style="font-size: 10px; margin: 0;">For S.P POWER ENGINEERING</p>
+                            <p style="margin: 0;">Authorised Signatory</p>
+                        </span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="footer">
+            <p>SUBJECT TO DELHI JURISDICTION</p>
+            <p>This is a Computer Generated Document</p>
+        </div>
+    </div>
+    <button class="print-button" onclick="printPageArea(`printAreaData`)">Print Quotation</button>
+</body>
+</html>
