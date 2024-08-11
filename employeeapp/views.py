@@ -4,7 +4,6 @@ from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse,HttpResponseRedirect
 from .models import Employee
 from .forms import EmployeeForm
-from rest_framework.decorators import api_view
 from api.helpers import validate_email,validate_mobile_number
 
 from .serializers import EmployeeSerializer
@@ -14,7 +13,6 @@ def index(request):
 
 
 # Get list of all employees
-@api_view(['POST'])
 def getEmployeeList(request):
     try:
         employees = Employee.objects.all()
@@ -26,7 +24,6 @@ def getEmployeeList(request):
 from django.db.models import Q
 
 # Create a new employee
-@api_view(['POST'])
 def createEmployee(request):
     if request.method == 'POST':
         try:
@@ -52,7 +49,6 @@ def createEmployee(request):
 
 
 # Update an employee's information
-@api_view(['POST'])
 def updateEmployee(request, id):
     if request.method == 'POST':
         try:
@@ -70,7 +66,6 @@ def updateEmployee(request, id):
 
 
 
-@api_view(['GET'])
 def get_employee(request, id):
     try:
         employee = Employee.objects.get(id=id)
@@ -81,7 +76,6 @@ def get_employee(request, id):
         
 
 # Delete an employee
-@api_view(['POST'])
 def deleteEmployee(request, id):
     try:
         employee = get_object_or_404(Employee, id=id)
