@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Multiple Products</title>
+    <style>
+        .product { margin-bottom: 20px; }
+        .form-group { margin-bottom: 10px; }
+        .delete-button { color: red; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <form id="quotationForm">
+        <div id="productsContainer">
+            <div class="product" id="product0">
+                <h3>Product 1</h3>
+                <div class="form-group">
+                    <label for="description0">Description of Goods:</label>
+                    <textarea id="description0" name="description0" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="hsn0">HSN/SAC:</label>
+                    <input type="text" id="hsn0" name="hsn0" required>
+                </div>
+                <div class="form-group">
+                    <label for="gst_rate0">GST Rate:</label>
+                    <input type="text" id="gst_rate0" name="gst_rate0" required>
+                </div>
+                <div class="form-group">
+                    <label for="quantity0">Quantity:</label>
+                    <input type="number" id="quantity0" name="quantity0" required>
+                </div>
+                <div class="form-group">
+                    <label for="unit_price0">Unit Price:</label>
+                    <input type="text" id="unit_price0" name="unit_price0" required>
+                </div>
+                <button type="button" class="delete-button" onclick="removeProduct(0)">Delete</button>
+            </div>
+        </div>
+        <div class="form-group">
+            <button type="button" onclick="addProduct()">Add Product</button>
+        </div>
+        <div class="form-group">
+            <button type="submit">Submit Quotation</button>
+        </div>
+    </form>
+
+    <script>
+        let productIndex = 0;
+
+        function addProduct() {
+            productIndex++;
+            const productsContainer = document.getElementById('productsContainer');
+            
+            const productDiv = document.createElement('div');
+            productDiv.className = 'product';
+            productDiv.id = `product${productIndex}`;
+            productDiv.innerHTML = `
+                <h3>Product ${productIndex + 1}</h3>
+                <div class="form-group">
+                    <label for="description${productIndex}">Description of Goods:</label>
+                    <textarea id="description${productIndex}" name="description${productIndex}" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="hsn${productIndex}">HSN/SAC:</label>
+                    <input type="text" id="hsn${productIndex}" name="hsn${productIndex}" required>
+                </div>
+                <div class="form-group">
+                    <label for="gst_rate${productIndex}">GST Rate:</label>
+                    <input type="text" id="gst_rate${productIndex}" name="gst_rate${productIndex}" required>
+                </div>
+                <div class="form-group">
+                    <label for="quantity${productIndex}">Quantity:</label>
+                    <input type="number" id="quantity${productIndex}" name="quantity${productIndex}" required>
+                </div>
+                <div class="form-group">
+                    <label for="unit_price${productIndex}">Unit Price:</label>
+                    <input type="text" id="unit_price${productIndex}" name="unit_price${productIndex}" required>
+                </div>
+                <button type="button" class="delete-button" onclick="removeProduct(${productIndex})">Delete</button>
+            `;
+            productsContainer.appendChild(productDiv);
+        }
+
+        function removeProduct(index) {
+            const productDiv = document.getElementById(`product${index}`);
+            productDiv.remove();
+            reindexProducts();
+        }
+
+        function reindexProducts() {
+            const products = document.querySelectorAll('.product');
+            productIndex = 0; // Reset index for proper reindexing
+            products.forEach(product => {
+                const currentIndex = productIndex;
+                product.id = `product${currentIndex}`;
+                product.querySelector('h3').textContent = `Product ${currentIndex + 1}`;
+                product.querySelectorAll('textarea, input').forEach(field => {
+                    const name = field.name;
+                    const id = field.id;
+                    field.name = name.replace(/\d+/, currentIndex);
+                    field.id = id.replace(/\d+/, currentIndex);
+                });
+                product.querySelector('.delete-button').setAttribute('onclick', `removeProduct(${currentIndex})`);
+                productIndex++;
+            });
+        }
+
+        document.getElementById('quotationForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent the form from submitting normally
+
+            const products = [];
+            for (let i = 0; i <= productIndex; i++) {
+                const productDiv = document.getElementById(`product${i}`);
+                if (productDiv) {
+                    const product = {
+                        description: document.getElementById(`description${i}`).value,
+                        hsn: document.getElementById(`hsn${i}`).value,
+                        gst_rate: document.getElementById(`gst_rate${i}`).value,
+                        quantity: document.getElementById(`quantity${i}`).value,
+                        unit_price: document.getElementById(`unit_price${i}`).value,
+                    };
+                    products.push(product);
+                }
+            }
+
+            console.log('Products:', products);
+        });
+    </script>
+</body>
+</html>
