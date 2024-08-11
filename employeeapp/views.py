@@ -6,7 +6,7 @@ from .models import Employee
 from .forms import EmployeeForm
 from api.helpers import validate_email,validate_mobile_number
 
-from .serializers import EmployeeSerializer
+# from .serializers import EmployeeSerializer
 
 def index(request):
     return render(request, 'employee_list.html')
@@ -69,10 +69,10 @@ def updateEmployee(request, id):
 def get_employee(request, id):
     try:
         employee = Employee.objects.get(id=id)
-        serializer = EmployeeSerializer(employee)
-        return JsonResponse({'status': 'success', 'employee': serializer.data})
+        # serializer = EmployeeSerializer(employee)
+        return JsonResponse({'status': 'success', 'employee': employee.data})
     except Employee.DoesNotExist:
-        return JsonResponse({'status': 'error', 'message': 'Employee not found.'})\
+        return JsonResponse({'status': 'error', 'message': 'Employee not found.'})
         
 
 # Delete an employee
