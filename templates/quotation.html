@@ -85,6 +85,66 @@
             window.print();
             document.body.innerHTML = originalContent;
         }
+
+        function numberToWords(num) {
+            if (num === 0) return "zero";
+
+            const belowTwenty = ["", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten",
+                "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen",
+                "eighteen", "nineteen"];
+            const tens = ["", "", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"];
+            const thousands = ["", "thousand", "million", "billion"];
+
+            function helper(n) {
+                if (n === 0) return "";
+                else if (n < 20) return belowTwenty[n] + " ";
+                else if (n < 100) return tens[Math.floor(n / 10)] + (n % 10 ? "-" + belowTwenty[n % 10] : "") + " ";
+                else return belowTwenty[Math.floor(n / 100)] + " hundred " + helper(n % 100);
+            }
+
+            function convertIntegerPart(num) {
+                let result = "";
+                let thousandCounter = 0;
+
+                while (num > 0) {
+                    if (num % 1000 !== 0) {
+                        result = helper(num % 1000) + thousands[thousandCounter] + " " + result;
+                    }
+                    num = Math.floor(num / 1000);
+                    thousandCounter++;
+                }
+
+                return result.trim();
+            }
+
+            function convertDecimalPart(decimalStr) {
+                let result = "";
+                for (let i = 0; i < decimalStr.length; i++) {
+                    result += belowTwenty[parseInt(decimalStr[i])] + " ";
+                }
+                return result.trim();
+            }
+
+            // Split the number into integer and decimal parts
+            const parts = num.toString().split(".");
+            const integerPart = parseInt(parts[0]);
+            const decimalPart = parts[1] ? parts[1] : null;
+
+            let words = convertIntegerPart(integerPart);
+
+            if (decimalPart) {
+                words += " point " + convertDecimalPart(decimalPart);
+            }
+
+            return words.trim();
+        }
+
+        // Function to update the div content
+        function updateAmountInWords() {
+            let amount = 12768;  // This is where you set the numerical value
+            let words = numberToWords(amount);
+            document.getElementById("amountInWords").innerHTML = "INR " + words + " only";
+        }
     </script>
 </head>
 <body>
@@ -163,6 +223,7 @@
                     <td>{{ data.unit_price }}</td>
                     <td>{{ data.amount }}</td>
                 </tr>
+                
                 <tr>
                     <td></td>
                     <td class="total">SGST</td>
@@ -202,7 +263,7 @@
                         <div><strong>Amount Chargeable (in words):</strong></div>
                     </td>
                     <td>
-                        <div>INR Twelve Thousand Seven Hundred Sixty Eight Only</div>
+                        <div id="amountInWords"></div>
                     </td>
                 </tr>
                 <tr>

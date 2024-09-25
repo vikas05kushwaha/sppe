@@ -3,48 +3,136 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Multiple Products</title>
+    <title>Quotation Form</title>
     <style>
-        .product { margin-bottom: 20px; }
-        .form-group { margin-bottom: 10px; }
-        .delete-button { color: red; cursor: pointer; }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        .form-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+        .form-group button {
+            padding: 10px 15px;
+            background-color: #007bff;
+            border: none;
+            color: white;
+            cursor: pointer;
+        }
+        .delete-button {
+            background-color: #dc3545;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
-    <form id="quotationForm">
-        <div id="productsContainer">
-            <div class="product" id="product0">
-                <h3>Product 1</h3>
-                <div class="form-group">
-                    <label for="description0">Description of Goods:</label>
-                    <textarea id="description0" name="description0" required></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="hsn0">HSN/SAC:</label>
-                    <input type="text" id="hsn0" name="hsn0" required>
-                </div>
-                <div class="form-group">
-                    <label for="gst_rate0">GST Rate:</label>
-                    <input type="text" id="gst_rate0" name="gst_rate0" required>
-                </div>
-                <div class="form-group">
-                    <label for="quantity0">Quantity:</label>
-                    <input type="number" id="quantity0" name="quantity0" required>
-                </div>
-                <div class="form-group">
-                    <label for="unit_price0">Unit Price:</label>
-                    <input type="text" id="unit_price0" name="unit_price0" required>
-                </div>
-                <button type="button" class="delete-button" onclick="removeProduct(0)">Delete</button>
+    <div class="form-container">
+        <h2 style="text-align: center;">Quotation Form</h2>
+        <form id="quotationForm" action="{% url 'generate_quotation' %}" method="post" onsubmit="return validateForm()">
+            {% csrf_token %}
+
+            <!-- Shipping and Billing Information -->
+            <!-- Add your fields here as you have done above -->
+            <div class="form-group">
+                <label for="company_name_ship">Ship To - Company Name:</label>
+                <input type="text" id="company_name_ship" name="company_name_ship" required>
             </div>
-        </div>
-        <div class="form-group">
-            <button type="button" onclick="addProduct()">Add Product</button>
-        </div>
-        <div class="form-group">
-            <button type="submit">Submit Quotation</button>
-        </div>
-    </form>
+            <div class="form-group">
+                <label for="company_address_ship">Ship To - Company Address:</label>
+                <textarea id="company_address_ship" name="company_address_ship" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="gstin_ship">Ship To - GSTIN:</label>
+                <input type="text" id="gstin_ship" name="gstin_ship" required>
+            </div>
+            <div class="form-group">
+                <label for="state_ship">Ship To - State:</label>
+                <input type="text" id="state_ship" name="state_ship" required>
+            </div>
+            <div class="form-group">
+                <label for="company_name_bill">Bill To - Company Name:</label>
+                <input type="text" id="company_name_bill" name="company_name_bill" required>
+            </div>
+            <div class="form-group">
+                <label for="company_address_bill">Bill To - Company Address:</label>
+                <textarea id="company_address_bill" name="company_address_bill" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="gstin_bill">Bill To - GSTIN:</label>
+                <input type="text" id="gstin_bill" name="gstin_bill" required>
+            </div>
+            <div class="form-group">
+                <label for="state_bill">Bill To - State:</label>
+                <input type="text" id="state_bill" name="state_bill" required>
+            </div>
+            <div class="form-group">
+                <label for="voucher_no">Voucher No:</label>
+                <input type="text" id="voucher_no" name="voucher_no" required>
+            </div>
+            <div class="form-group">
+                <label for="date">Date:</label>
+                <input type="date" id="date" name="date" required>
+            </div>
+            <div class="form-group">
+                <label for="order_no">Buyer's Ref./Order No.:</label>
+                <input type="text" id="order_no" name="order_no" required>
+            </div>
+
+            <!-- Dynamic Product Section -->
+            <div id="productsContainer">
+                <div class="product" data-index="0">
+                    <h3>Product 1</h3>
+                    <div class="form-group">
+                        <label for="description0">Description of Goods:</label>
+                        <textarea id="description0" name="description0" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="hsn0">HSN/SAC:</label>
+                        <input type="text" id="hsn0" name="hsn0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="gst_rate0">GST Rate:</label>
+                        <input type="text" id="gst_rate0" name="gst_rate0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="quantity0">Quantity:</label>
+                        <input type="number" id="quantity0" name="quantity0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="unit_price0">Unit Price:</label>
+                        <input type="text" id="unit_price0" name="unit_price0" required>
+                    </div>
+                    <button type="button" class="delete-button" onclick="removeProduct(this)">Delete</button>
+                </div>
+            </div>
+            <div class="form-group">
+                <button type="button" onclick="addProduct()">Add Product</button>
+            </div>
+
+            <!-- Form Submission -->
+            <div class="form-group">
+                <button type="submit">Generate Quotation</button>
+            </div>
+        </form>
+    </div>
 
     <script>
         let productIndex = 0;
@@ -55,7 +143,7 @@
             
             const productDiv = document.createElement('div');
             productDiv.className = 'product';
-            productDiv.id = `product${productIndex}`;
+            productDiv.dataset.index = productIndex;
             productDiv.innerHTML = `
                 <h3>Product ${productIndex + 1}</h3>
                 <div class="form-group">
@@ -78,54 +166,50 @@
                     <label for="unit_price${productIndex}">Unit Price:</label>
                     <input type="text" id="unit_price${productIndex}" name="unit_price${productIndex}" required>
                 </div>
-                <button type="button" class="delete-button" onclick="removeProduct(${productIndex})">Delete</button>
+                <button type="button" class="delete-button" onclick="removeProduct(this)">Delete</button>
             `;
             productsContainer.appendChild(productDiv);
         }
 
-        function removeProduct(index) {
-            const productDiv = document.getElementById(`product${index}`);
+        function removeProduct(button) {
+            const productDiv = button.closest('.product');
             productDiv.remove();
             reindexProducts();
         }
 
         function reindexProducts() {
             const products = document.querySelectorAll('.product');
-            productIndex = 0; // Reset index for proper reindexing
-            products.forEach(product => {
-                const currentIndex = productIndex;
-                product.id = `product${currentIndex}`;
-                product.querySelector('h3').textContent = `Product ${currentIndex + 1}`;
-                product.querySelectorAll('textarea, input').forEach(field => {
-                    const name = field.name;
-                    const id = field.id;
-                    field.name = name.replace(/\d+/, currentIndex);
-                    field.id = id.replace(/\d+/, currentIndex);
+            products.forEach((product, index) => {
+                product.dataset.index = index;
+                const fields = product.querySelectorAll('textarea, input');
+                fields.forEach(field => {
+                    const name = field.name.replace(/\d+/, index);
+                    const id = field.id.replace(/\d+/, index);
+                    field.name = name;
+                    field.id = id;
                 });
-                product.querySelector('.delete-button').setAttribute('onclick', `removeProduct(${currentIndex})`);
-                productIndex++;
+                product.querySelector('h3').textContent = `Product ${index + 1}`;
             });
+            productIndex = products.length - 1;
         }
 
         document.getElementById('quotationForm').addEventListener('submit', function(event) {
             event.preventDefault(); // Prevent the form from submitting normally
 
             const products = [];
-            for (let i = 0; i <= productIndex; i++) {
-                const productDiv = document.getElementById(`product${i}`);
-                if (productDiv) {
-                    const product = {
-                        description: document.getElementById(`description${i}`).value,
-                        hsn: document.getElementById(`hsn${i}`).value,
-                        gst_rate: document.getElementById(`gst_rate${i}`).value,
-                        quantity: document.getElementById(`quantity${i}`).value,
-                        unit_price: document.getElementById(`unit_price${i}`).value,
-                    };
-                    products.push(product);
-                }
-            }
+            document.querySelectorAll('.product').forEach(product => {
+                const index = product.dataset.index;
+                products.push({
+                    description: document.getElementById(`description${index}`).value,
+                    hsn: document.getElementById(`hsn${index}`).value,
+                    gst_rate: document.getElementById(`gst_rate${index}`).value,
+                    quantity: document.getElementById(`quantity${index}`).value,
+                    unit_price: document.getElementById(`unit_price${index}`).value,
+                });
+            });
 
             console.log('Products:', products);
+            //this.submit(); // Submit the form after processing the data
         });
     </script>
 </body>

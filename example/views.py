@@ -9,6 +9,13 @@ def index(request):
 
 
 
+
+def newInvoice(request):
+    return render(request, 'newFile.html')
+
+
+
+
 def generate_quotation(request):
     if request.method == 'POST':
         data = request.POST.dict()

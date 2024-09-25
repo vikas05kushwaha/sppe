@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice Form with Preview and GST</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        h1, h2 {
+            text-align: center;
+        }
+        .section {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 5px;
+            margin-bottom: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        button {
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #total, #subtotal, #totalGST {
+            font-weight: bold;
+            text-align: right;
+            margin-top: 10px;
+        }
+        #previewModal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="invoice-container">
+        <h1>QUOTATION</h1>
+        <div class="header">
+            <!-- Company logo and details -->
+            <!-- Voucher No. and Date -->
+            <!-- Buyer's Ref/Order No. and Other's References -->
+        </div>
+        <div class="buyer-details">
+            <!-- Buyer (Bill To) details -->
+        </div>
+        <div class="consignee-details">
+            <!-- Consignee (Ship To) details -->
+        </div>
+        <table class="item-table">
+            <!-- Item details table -->
+        </table>
+        <div class="amount-in-words">
+            <!-- Amount Chargeable (in words) -->
+        </div>
+        <div class="bank-details">
+            <!-- Company's Bank Details -->
+        </div>
+        <div class="declaration">
+            <!-- Declaration text -->
+        </div>
+        <div class="signature">
+            <!-- Authorized Signatory -->
+        </div>
+        <div class="footer">
+            <!-- Jurisdiction and document generation note -->
+        </div>
+    </div>
+    <div class="container">
+        <h1>Invoice Form</h1>
+        <div class="section">
+            <h2>Shipping Company Details</h2>
+            <label for="companyName">Ship To - Company Name:</label>
+            <input type="text" id="companyName" required>
+            <label for="companyAddress">Ship To - Company Address:</label>
+            <textarea id="companyAddress" rows="3" required></textarea>
+            <label for="shipToGst">Ship To - GSTIN:</label>
+            <input type="text" id="companyName" required>
+            <label for="shipToState">Ship To - State:</label>
+            <input type="text" id="companyName" required>
+        </div>
+        <div class="section"></div>
+            <h2>Billing Company Details</h2>
+            <label for="companyName">Bill To - Company Name:</label>
+            <input type="text" id="companyName" required>
+            <label for="companyAddress">Bill To - Company Address:</label>
+            <textarea id="companyAddress" rows="3" required></textarea>
+            <label for="BillToGst">Bill To - GSTIN:</label>
+            <input type="text" id="companyName" required>
+            <label for="BillToState">Bill To - State:</label>
+            <input type="text" id="companyName" required>
+        </div>
+        <div class="section">
+            <h2>Customer Details</h2>
+            <label for="customerName">Customer Name:</label>
+            <input type="text" id="customerName" required>
+            <label for="customerAddress">Customer Address:</label>
+            <textarea id="customerAddress" rows="3" required></textarea>
+        </div>
+        <div class="section">
+            <h2>Products</h2>
+            <table id="productTable">
+                <thead>
+                    <tr>
+                        <th>Product Name</th>
+                        <th>Quantity</th>
+                        <th>Price</th>
+                        <th>GST (%)</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody id="productBody">
+                </tbody>
+            </table>
+            <button onclick="addProduct()">Add Product</button>
+            <div id="subtotal">Subtotal: $0.00</div>
+            <div id="totalGST">Total GST: $0.00</div>
+            <div id="total">Grand Total: $0.00</div>
+        </div>
+        <button onclick="showPreview()">Preview Invoice</button>
+        <div id="previewModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2>Invoice Preview</h2>
+                <div id="previewContent"></div>
+                <button id="printButton" onclick="printInvoice()">Print Invoice</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="previewModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Invoice Preview</h2>
+            <div id="previewContent"></div>
+        </div>
+    </div>
+
+    <script>
+        let productCount = 0;
+
+        function addProduct() {
+            productCount++;
+            const productBody = document.getElementById('productBody');
+            const newRow = productBody.insertRow();
+            newRow.innerHTML = `
+                <td><input type="text" name="productName${productCount}" required></td>
+                <td><input type="number" name="quantity${productCount}" onchange="updateTotal()" min="1" required></td>
+                <td><input type="number" name="price${productCount}" onchange="updateTotal()" min="0" step="0.01" required></td>
+                <td><input type="number" name="gst${productCount}" onchange="updateTotal()" min="0" max="100" step="0.01" required></td>
+                <td class="total">$0.00</td>
+            `;
+            updateTotal();
+        }
+
+        function updateTotal() {
+            let subtotal = 0;
+            let totalGST = 0;
+            const rows = document.getElementById('productBody').rows;
+            for (let i = 0; i < rows.length; i++) {
+                const quantity = parseFloat(rows[i].querySelector('input[name^="quantity"]').value) || 0;
+                const price = parseFloat(rows[i].querySelector('input[name^="price"]').value) || 0;
+                const gst = parseFloat(rows[i].querySelector('input[name^="gst"]').value) || 0;
+                
+                const rowSubtotal = quantity * price;
+                const rowGST = rowSubtotal * (gst / 100);
+                const rowTotal = rowSubtotal + rowGST;
+                
+                rows[i].querySelector('.total').textContent = `$${rowTotal.toFixed(2)}`;
+                subtotal += rowSubtotal;
+                totalGST += rowGST;
+            }
+            const grandTotal = subtotal + totalGST;
+            document.getElementById('subtotal').textContent = `Subtotal: $${subtotal.toFixed(2)}`;
+            document.getElementById('totalGST').textContent = `Total GST: $${totalGST.toFixed(2)}`;
+            document.getElementById('total').textContent = `Grand Total: $${grandTotal.toFixed(2)}`;
+        }
+
+        function showPreview() {
+            const previewContent = document.getElementById('previewContent');
+            const companyName = document.getElementById('companyName').value;
+            const companyAddress = document.getElementById('companyAddress').value;
+            const customerName = document.getElementById('customerName').value;
+            const customerAddress = document.getElementById('customerAddress').value;
+        
+            let previewHTML = `
+                <h2 style="text-align: center;">QUOTATION</h2>
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                    <div style="display: flex; align-items: center;">
+                        <img src="https://trovenapp.s3.amazonaws.com/sppowerLogo.png" alt="Company Logo" height="80px" width="80px">
+                        <span style="margin-left: 20px;">
+                            <p style="margin: 0;">S.P POWER ENGINEERING</p>
+                            <p style="font-size: small;margin: 0;">TOP FLOOR, F3-292T STREET, NEW DELHI EXTN,
+                                S.A.R. - 110019, Delhi, India
+                                Email: sppowerengineering@gmail.com</p>
+                        </span>
+                    </div>
+                    <div>
+                        <p><strong>Voucher No:</strong> 28</p>
+                        <p><strong>Dateeed:</strong> ${new Date().toLocaleDateString()}</p>
+                        <p><strong>Buyer's Ref/Order No:</strong> 001</p>
+                        <p><strong>Other's References:</strong></p>
+                    </div>
+                </div>
+        
+                <div style="margin-top: 20px;">
+                    <h3>Buyer (Bill To):</h3>
+                    <p><strong>Name:</strong> ${customerName}</p>
+                    <p><strong>Address:</strong> ${customerAddress}</p>
+                    <p><strong>GSTIN/UIN:</strong> 07AAZPS4076M1ZL</p>
+                    <p><strong>State Name:</strong> Delhi, Code: 07</p>
+                </div>
+        
+                <div style="margin-top: 20px;">
+                    <h3>Consignee (Ship To):</h3>
+                    <p><strong>Name:</strong> ${customerName}</p>
+                    <p><strong>Address:</strong> ${customerAddress}</p>
+                    <p><strong>GSTIN/UIN:</strong> 07AAZPS4076M1ZL</p>
+                    <p><strong>State Name:</strong> Delhi, Code: 07</p>
+                </div>
+        
+                <h3>Products</h3>
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr>
+                            <th style="border: 1px solid black; padding: 5px;">S.No</th>
+                            <th style="border: 1px solid black; padding: 5px;">Description of Goods</th>
+                            <th style="border: 1px solid black; padding: 5px;">HSN/SAC</th>
+                            <th style="border: 1px solid black; padding: 5px;">GST Rate</th>
+                            <th style="border: 1px solid black; padding: 5px;">Due on</th>
+                            <th style="border: 1px solid black; padding: 5px;">Quantity</th>
+                            <th style="border: 1px solid black; padding: 5px;">Unit Price</th>
+                            <th style="border: 1px solid black; padding: 5px;">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+        
+            const rows = document.getElementById('productBody').rows;
+            let totalAmount = 0;
+            for (let i = 0; i < rows.length; i++) {
+                const productName = rows[i].querySelector('input[name^="productName"]').value;
+                const quantity = rows[i].querySelector('input[name^="quantity"]').value;
+                const price = rows[i].querySelector('input[name^="price"]').value;
+                const gst = rows[i].querySelector('input[name^="gst"]').value;
+                const amount = parseFloat(quantity) * parseFloat(price);
+                totalAmount += amount;
+        
+                previewHTML += `
+                    <tr>
+                        <td style="border: 1px solid black; padding: 5px;">${i + 1}</td>
+                        <td style="border: 1px solid black; padding: 5px;">${productName}</td>
+                        <td style="border: 1px solid black; padding: 5px;">8536</td>
+                        <td style="border: 1px solid black; padding: 5px;">${gst}%</td>
+                        <td style="border: 1px solid black; padding: 5px;">${new Date().toLocaleDateString()}</td>
+                        <td style="border: 1px solid black; padding: 5px;">${quantity}</td>
+                        <td style="border: 1px solid black; padding: 5px;">$${parseFloat(price).toFixed(2)}</td>
+                        <td style="border: 1px solid black; padding: 5px;">$${amount.toFixed(2)}</td>
+                    </tr>
+                `;
+            }
+        
+            const totalGST = totalAmount * 0.18;
+            const grandTotal = totalAmount + totalGST;
+        
+            previewHTML += `
+                    <tr>
+                        <td colspan="7" style="border: 1px solid black; padding: 5px; text-align: right;"><strong>SGST:</strong></td>
+                        <td style="border: 1px solid black; padding: 5px;">$${(totalGST / 2).toFixed(2)}</td>
+                    </tr>
+                    <tr>
+                        <td colspan="7" style="border: 1px solid black; padding: 5px; text-align: right;"><strong>CGST:</strong></td>
+                        <td style="border: 1px solid black; padding: 5px;">$${(totalGST / 2).toFixed(2)}</td>
+                    </tr>
+                    <tr>
+                        <td colspan="7" style="border: 1px solid black; padding: 5px; text-align: right;"><strong>Total:</strong></td>
+                        <td style="border: 1px solid black; padding: 5px;">$${grandTotal.toFixed(2)}</td>
+                    </tr>
+                </tbody>
+            </table>
+        
+            <div style="margin-top: 20px;">
+                <p><strong>Amount Chargeable (in words):</strong></p>
+                <p>${numberToWords(grandTotal)} dollars only</p>
+            </div>
+        
+            <div style="margin-top: 20px;">
+                <h3>Company's Bank Details:</h3>
+                <p><strong>Company's PAN:</strong> ASEPK8354M</p>
+                <p><strong>Account Holder's Name:</strong> S.P POWER ENGINEERING</p>
+                <p><strong>Bank Name:</strong> KOTAK MAHINDRA BANK</p>
+                <p><strong>Account No:</strong> 511297962</p>
+                <p><strong>Branch & IFSC Code:</strong> New Delhi - Okhla & KKBK0000265</p>
+            </div>
+        
+            <div style="margin-top: 20px;">
+                <p><strong>Declaration:</strong></p>
+                <p>We declare that this invoice shows the actual price of the goods described and that all particulars are true and correct.</p>
+            </div>
+        
+            <div style="margin-top: 20px; text-align: right;">
+                <p>For S.P POWER ENGINEERING</p>
+                <p>Authorised Signatory</p>
+            </div>
+        
+            <div style="margin-top: 20px; text-align: center;">
+                <p><strong>SUBJECT TO DELHI JURISDICTION</strong></p>
+                <p>This is a Computer Generated Document</p>
+            </div>
+            `;
+        
+            previewContent.innerHTML = previewHTML;
+            document.getElementById('previewModal').style.display = 'block';
+        }
+        function printInvoice() {
+            window.print();
+        }
+        
+        // Helper function to convert numbers to words
+        function numberToWords(number) {
+            // Implement or use a library for number to words conversion
+            // This is a placeholder function
+            return number.toString();
+        }
+
+        // Close the modal when clicking on <span> (x)
+        document.querySelector('.close').onclick = function() {
+            document.getElementById('previewModal').style.display = 'none';
+        }
+
+        // Close the modal when clicking outside of it
+        window.onclick = function(event) {
+            if (event.target == document.getElementById('previewModal')) {
+                document.getElementById('previewModal').style.display = 'none';
+            }
+        }
+
+        // Add the first product row by default
+        addProduct();
+    </script>
+</body>
+</html>
