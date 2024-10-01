@@ -383,10 +383,28 @@
             document.getElementById('previewModal').style.display = 'block';
         }
         
+
         function printInvoice() {
-            window.print();
+            const previewContent = document.getElementById('previewContent').innerHTML;
+
+            // Open a new window and write the preview content into it
+            const printWindow = window.open('', '', 'height=600,width=800');
+            printWindow.document.write('<html><head><title>Invoice</title>');
+            printWindow.document.write('<style>body { font-family: Arial, sans-serif; margin: 20px; } table { width: 100%; border-collapse: collapse; } th, td { border: 1px solid black; padding: 8px; } th { background-color: #f2f2f2; }</style>');
+            printWindow.document.write('</head><body>');
+            printWindow.document.write(previewContent);
+            printWindow.document.write('</body></html>');
+
+            // Close the document to finish loading the content
+            printWindow.document.close();
+
+            // Give the new window some time to render the content
+            setTimeout(function () {
+                printWindow.print(); // Trigger the print dialog
+                printWindow.close(); // Close the print window once done
+            }, 1000);
         }
-        
+
         // Helper function to convert numbers to words
         function numberToWords(number) {
             // Implement or use a library for number to words conversion
