@@ -11,7 +11,7 @@ def index(request):
 
 
 def newInvoice(request):
-    return render(request, 'newFIle.html')
+    return render(request, 'new1.html')
 
 
 
