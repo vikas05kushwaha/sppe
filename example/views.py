@@ -5,7 +5,7 @@ from django.shortcuts import render
 
 
 def index(request):
-    return render(request, 'quotationform.html')
+    return render(request, 'newFile.html')
 
 
 
