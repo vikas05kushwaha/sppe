@@ -5,7 +5,7 @@ from django.shortcuts import render
 
 
 def index(request):
-    return render(request, 'newFile.html')
+    return render(request, 'newFIle.html')
 
 
 
